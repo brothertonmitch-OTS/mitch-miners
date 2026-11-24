@@ -1,0 +1,611 @@
+/* ============================================================================
+   MULTI-MINE — "Warm Workshop" UI skin
+   Loaded after styles.css. Warm dark-brown panels that match the cave arenas,
+   cream text, one yellow accent for the main action, red only for danger.
+   Two fonts: Fredoka (headings, buttons, numbers) + Lexend (body), both light and easy to read.
+   ============================================================================ */
+:root {
+  /* palette */
+  --ink-line: #1A120E;     /* outlines */
+  --bg-deep: #1F1612;      /* page / backdrop */
+  --panel: #3A2A22;        /* frames */
+  --panel-hi: #45332A;
+  --card: #4A372C;         /* inner cards */
+  --card-hi: #57412F;
+  --sunken: #2A1E18;       /* tracks, wells */
+  --cream: #FFF2DC;        /* main text */
+  --tan: #D8BE9C;          /* secondary text */
+  --yellow: #FFC233;       /* the one accent */
+  --yellow-hi: #FFD666;
+  --yellow-lo: #D9960F;
+  --brown-btn: #6B4E3C;    /* secondary buttons */
+  --brown-btn-hi: #7C5C47;
+  --good: #7DCB5A;
+  --bad: #E8483F;
+  --cool: #4FC3E8;         /* ultimate / shields */
+
+  /* re-point the base stylesheet's variables */
+  --bg-panel: var(--panel);
+  --bg-card: var(--card);
+  --bg-card-hover: var(--card-hi);
+  --border: rgba(26, 18, 14, 0.9);
+  --border-strong: var(--ink-line);
+  --ink: var(--cream);
+  --muted: var(--tan);
+  --mint: var(--good);
+  --mint-d: #5AA63F;
+  --gold: var(--yellow);
+  --coral: var(--bad);
+  --sky: var(--cool);
+  --violet: #B98AE8;
+
+  /* type */
+  --font-display: 'Fredoka', 'Lexend', system-ui, sans-serif;
+  --font-button: 'Fredoka', 'Lexend', system-ui, sans-serif;
+  --font-body: 'Lexend', system-ui, sans-serif;
+
+  /* depth */
+  --frame-depth: inset 0 2px 0 rgba(255, 236, 200, 0.08), 0 6px 0 rgba(0, 0, 0, 0.35), 0 16px 36px rgba(0, 0, 0, 0.4);
+  --card-depth: inset 0 2px 0 rgba(255, 236, 200, 0.06);
+  --press: 0 4px 0 var(--ink-line);
+}
+
+html, body {
+  font-family: var(--font-body);
+  font-weight: 600;
+  background: var(--bg-deep);
+  color: var(--cream);
+}
+
+/* ---------- Typography --------------------------------------------------- */
+h1, h2, h3,
+.top-bar h2,
+.modal-head h2,
+.shop-header h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--cream);
+  text-shadow: 0 3px 0 var(--ink-line);
+}
+
+.section-label,
+.block-label {
+  font-family: var(--font-button);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--yellow);
+}
+
+.muted { color: var(--tan); }
+
+kbd {
+  background: var(--brown-btn);
+  border: 2px solid var(--ink-line);
+  border-bottom-width: 4px;
+  border-radius: 6px;
+  color: var(--cream);
+  font-family: var(--font-button);
+}
+
+/* ---------- Logo ---------------------------------------------------------- */
+.game-logo {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.logo-multi,
+.logo-mine,
+.logo-dash {
+  -webkit-text-stroke: 3px var(--ink-line);
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 var(--ink-line);
+}
+.logo-multi { color: var(--cream); }
+.logo-dash { color: var(--yellow); }
+.logo-mine { color: var(--yellow); background: none; }
+.title-tagline { color: var(--tan); }
+
+/* ---------- Frames (outer panels) ------------------------------------------ */
+.title-card,
+.select-shell,
+.shop-shell,
+.modal-card,
+.hud-vitals,
+.hud-center,
+.hud-boss-bar,
+.wave-banner {
+  background: var(--panel);
+  border: 3px solid var(--ink-line);
+  border-radius: 14px;
+  box-shadow: var(--frame-depth);
+}
+
+.top-bar,
+.shop-header {
+  background: var(--panel-hi);
+  border-bottom: 3px solid var(--ink-line);
+}
+
+/* ---------- Cards (inner panels) -------------------------------------------- */
+.dossier-panel,
+.hazard-bar,
+.dossier-block,
+.shop-card,
+.sidebar-section,
+.shop-roadmap-wrap,
+.shop-hero-bar,
+.owned-items-section,
+.char-card,
+.lab-career-strip,
+.guide-card,
+.codex-body,
+.daily-body,
+.end-stats-grid > *,
+.ach-list > *,
+.item-inspect-bar,
+.dossier-more {
+  background-color: var(--card);
+  border: 2.5px solid var(--ink-line);
+  box-shadow: var(--card-depth);
+}
+
+.char-card {
+  border-radius: 12px;
+  transition: transform 0.12s ease, background-color 0.12s ease;
+}
+.char-card:hover {
+  background-color: var(--card-hi);
+  border-color: var(--ink-line);
+  transform: translateY(-3px);
+}
+.char-card.selected {
+  background-color: var(--card-hi);
+  border-color: var(--ink-line);
+  box-shadow: 0 0 0 3px var(--yellow), 0 0 0 6px var(--ink-line);
+}
+
+.dossier-avatar,
+.hud-avatar,
+.end-avatar {
+  background: var(--sunken);
+  border: 2.5px solid var(--ink-line);
+  border-radius: 12px;
+}
+
+/* ---------- Buttons -------------------------------------------------------- */
+.btn-primary,
+.btn-secondary,
+.btn-ghost,
+.btn-danger,
+.btn-daily,
+.btn-practice,
+.btn-resume,
+.btn-hud,
+.btn-merge-all,
+.track-pill,
+.codex-tab,
+.side-tab {
+  font-family: var(--font-button);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  border: 2.5px solid var(--ink-line);
+  text-shadow: none;
+}
+
+.btn-primary {
+  background: var(--yellow);
+  color: #2A1A10;
+  border-radius: 12px;
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.35), var(--press);
+  text-transform: uppercase;
+}
+.btn-primary:hover:not(:disabled) { background: var(--yellow-hi); transform: translateY(-2px); box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.35), 0 6px 0 var(--ink-line); }
+.btn-primary:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink-line); }
+
+.btn-secondary,
+.btn-hud,
+.btn-daily,
+.btn-practice,
+.track-pill,
+.codex-tab,
+.side-tab {
+  background: var(--brown-btn);
+  color: var(--cream);
+  border-radius: 10px;
+  box-shadow: inset 0 2px 0 rgba(255, 236, 200, 0.12), var(--press);
+}
+.btn-secondary:hover:not(:disabled),
+.btn-hud:hover:not(:disabled),
+.btn-daily:hover:not(:disabled),
+.btn-practice:hover:not(:disabled) {
+  background: var(--brown-btn-hi);
+  border-color: var(--ink-line);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--tan);
+  border-radius: 10px;
+  border-color: rgba(26, 18, 14, 0.9);
+}
+
+.btn-danger {
+  background: var(--bad);
+  color: #fff;
+  border-radius: 10px;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.25), var(--press);
+}
+
+.btn-resume {
+  background: var(--good);
+  color: #16210F;
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.3), var(--press);
+}
+
+.track-pill.active,
+.codex-tab.active,
+.side-tab.active {
+  background: var(--yellow);
+  color: #2A1A10;
+  border-color: var(--ink-line);
+}
+
+/* ---------- HUD ------------------------------------------------------------ */
+.hud-wave-num { font-family: var(--font-button); color: var(--tan); letter-spacing: 0.08em; }
+.hud-wave-timer { font-family: var(--font-display); font-weight: 400; color: var(--cream); text-shadow: 0 3px 0 var(--ink-line); }
+#hud-charname { font-family: var(--font-button); letter-spacing: 0.03em; }
+.hud-level-pill { font-family: var(--font-button); color: #2A1A10; background: var(--yellow); border: 2px solid var(--ink-line); }
+.scrap-pill, .kill-pill { font-family: var(--font-button); }
+.scrap-pill { color: var(--yellow); }
+
+.bar-track {
+  background: var(--sunken);
+  border: 2.5px solid var(--ink-line);
+  border-radius: 8px;
+}
+.hp-track { height: 18px; }
+.hp-fill { background: var(--bad); }
+.shield-fill { background: var(--cool); opacity: 0.85; }
+.xp-fill { background: var(--good); }
+.bar-text { font-family: var(--font-button); text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6); }
+
+.hud-dash-box,
+.hud-ult-box,
+.hud-rally-box {
+  background: var(--sunken);
+  border: 2.5px solid var(--ink-line);
+  border-radius: 10px;
+  font-family: var(--font-button);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  box-shadow: var(--press);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+}
+.hud-ult-fill { background: var(--cool) !important; }
+.hud-dash-fill { background: var(--good) !important; }
+
+.boss-bar-track { height: 16px; background: var(--sunken); border: 2.5px solid var(--ink-line); border-radius: 8px; }
+.boss-bar-fill { background: var(--bad); }
+#hud-boss-name, #hud-boss-hp { font-family: var(--font-button); letter-spacing: 0.05em; }
+
+.wave-banner-title { font-family: var(--font-display); font-weight: 400; font-size: 1.4rem; text-shadow: 0 3px 0 var(--ink-line); }
+
+/* ---------- Overlays & modals --------------------------------------------- */
+.overlay-screen { background: rgba(20, 13, 10, 0.35); }
+.modal { background: rgba(20, 13, 10, 0.72); }
+
+/* ============================================================================
+   DECLUTTER LAYER — less on screen at once; everything is still reachable
+   ============================================================================ */
+
+/* ---------- In-run HUD: health, XP, scrap, wave + timer, dash/ult ---------- */
+#hud-hero-traits,
+#hud .kill-pill,
+#hud-roadmap,
+#hud-wave-bar,
+#hud-biome,
+#hud-synergies {
+  display: none !important;
+}
+.hud-vitals { min-width: 240px; }
+.hud-center { padding: 6px 22px; min-width: 150px; }
+.hud-wave-timer { font-size: 2.2rem; }
+#btn-hud-pause { font-size: 1rem; padding: 6px 14px; }
+
+/* ---------- Title ---------------------------------------------------------- */
+.title-card { max-width: 620px; padding: 34px 32px 28px; }
+.title-card .game-logo { white-space: nowrap; font-size: clamp(2.6rem, 7.5vw, 4.8rem); }
+.title-tagline { margin: 6px auto 26px; font-size: 1.05rem; }
+.title-primary-row { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.btn-title-main { min-width: 280px; font-size: 1.7rem; padding: 16px 40px; }
+.title-sub-actions { margin-top: 18px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.title-sub-actions .btn-secondary { padding: 9px 16px; }
+#gp-status-pill { margin-top: 14px; display: inline-block; }
+
+/* ---------- Pause & Settings ---------------------------------------------- */
+.pause-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.pause-row { display: flex; gap: 8px; }
+.pause-row > * { flex: 1; }
+.settings-link { text-align: center; text-decoration: none; display: block; padding: 10px 18px; }
+.settings-controls {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 14px;
+  margin-top: 18px; padding-top: 14px; border-top: 2.5px solid var(--ink-line);
+  color: var(--tan); font-size: 0.85rem;
+}
+/* Settings sits under the windows it opens (Audio, How to Play) */
+#modal-settings { z-index: 38; }
+
+/* ---------- Select: character first, details tucked away --------------------- */
+.dossier-more { border-radius: 12px; padding: 8px 12px; }
+.dossier-more summary {
+  cursor: pointer;
+  font-family: var(--font-button);
+  letter-spacing: 0.04em;
+  color: var(--yellow);
+  list-style: none;
+}
+.dossier-more summary::before { content: '▸ '; }
+.dossier-more[open] summary::before { content: '▾ '; }
+.dossier-more[open] > * + * { margin-top: 10px; }
+.dossier-more .dossier-block { background: var(--sunken); box-shadow: none; }
+
+/* ---------- Run Setup modal ------------------------------------------------ */
+.runsetup-card { width: min(760px, 96vw); }
+.runsetup-card .hazard-bar { margin-top: 8px; }
+
+/* ---------- Shop: a big workshop with every description printed in full ---- */
+.overlay-screen > .shop-shell,
+.shop-shell {
+  max-width: min(1680px, 97vw);
+  height: min(96vh, 1040px);
+}
+.shop-layout { grid-template-columns: 2.3fr 1fr; gap: 20px; }
+.shop-cards { gap: 14px; }
+.shop-card { position: relative; padding: 14px 14px 12px; gap: 8px; }
+.shop-card-icon { width: 76px; height: 76px; }
+.shop-card-name { font-size: 1.02rem; }
+.shop-card .shop-card-desc {
+  display: block;
+  position: static;
+  flex: 1;
+  padding: 9px 10px;
+  background: var(--sunken);
+  color: var(--cream);
+  border-radius: 8px;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  text-align: left;
+}
+.shop-card .stat-chip { font-size: 0.74rem; padding: 3px 7px; }
+.shop-card .syn-tag { font-size: 0.72rem; }
+
+/* ---------- HUD polish: bigger, evenly spaced, wave timer truly centred ---- */
+.hud { padding: 16px 20px; }
+.hud-top { position: relative; }
+.hud-center {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  min-width: 140px;
+  padding: 4px 22px 6px;
+}
+.hud-wave-num { font-size: 0.8rem; }
+.hud-wave-timer { font-size: 2.5rem; line-height: 1; }
+
+.hud-vitals { min-width: 290px; padding: 10px 12px; gap: 12px; }
+.hud-avatar { width: 52px; height: 52px; }
+.hud-name-row { font-size: 1.05rem; margin-bottom: 6px; }
+#hud-charname { font-size: 1.05rem; }
+.hud-level-pill { font-size: 0.8rem; padding: 1px 8px; }
+.hp-track { height: 22px; margin-bottom: 6px; }
+.hp-track .bar-text { font-size: 0.85rem; line-height: 17px; }
+.xp-track { height: 9px; margin-bottom: 7px; }
+.hud-currencies { font-size: 1rem; }
+
+.hud-ability-stack { gap: 12px; }
+.hud-dash-box,
+.hud-ult-box,
+.hud-rally-box { height: 34px; min-width: 210px; font-size: 0.82rem; }
+#btn-hud-pause { min-width: 46px; min-height: 40px; }
+
+/* ============================================================================
+   INK & GRIT LAYER: hand-inked field-guide look
+   Warm black ink, earthy print colours, hard offset "printed" shadows,
+   slightly irregular corners and a paper grain on every frame.
+   ============================================================================ */
+:root {
+  --ink-line: #1E1A17;
+  --bg-deep: #1E1813;
+  --panel: #3B2F27;
+  --panel-hi: #46382E;
+  --card: #4A3B30;
+  --card-hi: #574536;
+  --sunken: #2A221C;
+  --cream: #F4EEDC;
+  --tan: #CDB894;
+  --yellow: #E8B52E;
+  --yellow-hi: #F5C94C;
+  --yellow-lo: #B98614;
+  --brown-btn: #6B5240;
+  --brown-btn-hi: #7C604B;
+  --good: #6FA84F;
+  --bad: #C9433A;
+  --cool: #4FA9C4;
+  --paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .95 0 0 0 0 .88 0 0 0 0 .75 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  --hatch: repeating-linear-gradient(-50deg, rgba(30, 26, 23, 0.28) 0 1.5px, transparent 1.5px 6px);
+  --frame-depth: 6px 6px 0 var(--ink-line);
+  --card-depth: 3px 3px 0 rgba(30, 26, 23, 0.85);
+  --press: 4px 4px 0 var(--ink-line);
+}
+
+/* frames: printed paper panels with a hard offset shadow and hand-cut corners */
+.title-card,
+.select-shell,
+.shop-shell,
+.modal-card,
+.hud-vitals,
+.hud-center,
+.hud-boss-bar,
+.wave-banner {
+  background: var(--paper), var(--panel);
+  border: 3.5px solid var(--ink-line);
+  border-radius: 10px 16px 9px 14px / 14px 9px 16px 10px;
+  box-shadow: var(--frame-depth);
+}
+.top-bar,
+.shop-header {
+  background: var(--hatch), var(--panel-hi);
+  border-bottom: 3.5px solid var(--ink-line);
+}
+
+.dossier-panel,
+.hazard-bar,
+.dossier-block,
+.shop-card,
+.sidebar-section,
+.shop-roadmap-wrap,
+.shop-hero-bar,
+.owned-items-section,
+.char-card,
+.lab-career-strip,
+.guide-card,
+.codex-body,
+.daily-body,
+.end-stats-grid > *,
+.ach-list > *,
+.item-inspect-bar,
+.dossier-more {
+  background-image: var(--paper);
+  border-radius: 8px 12px 7px 11px / 11px 7px 12px 8px;
+  box-shadow: var(--card-depth);
+}
+.char-card.selected { box-shadow: 0 0 0 3px var(--yellow), 5px 5px 0 3px var(--ink-line); }
+
+.dossier-avatar,
+.hud-avatar,
+.end-avatar {
+  background: var(--hatch), #C9A276;
+  border-radius: 9px 13px 8px 12px;
+}
+
+/* buttons: ink-bordered, hard shadow that "prints" down when pressed */
+.btn-primary,
+.btn-secondary,
+.btn-ghost,
+.btn-danger,
+.btn-daily,
+.btn-practice,
+.btn-resume,
+.btn-hud,
+.btn-merge-all,
+.track-pill,
+.codex-tab,
+.side-tab {
+  border-width: 3px;
+  border-radius: 7px 11px 8px 12px / 11px 8px 12px 7px;
+  transition: transform 0.06s ease, box-shadow 0.06s ease, background-color 0.1s ease;
+}
+.btn-primary { background: var(--yellow); color: var(--ink-line); box-shadow: var(--press); }
+.btn-primary:hover:not(:disabled) { background: var(--yellow-hi); transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--ink-line); }
+.btn-primary:active:not(:disabled),
+.btn-secondary:active:not(:disabled),
+.btn-hud:active:not(:disabled),
+.btn-danger:active:not(:disabled),
+.btn-resume:active:not(:disabled) { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink-line); }
+.btn-secondary,
+.btn-hud,
+.btn-daily,
+.btn-practice,
+.track-pill,
+.codex-tab,
+.side-tab { box-shadow: var(--press); }
+.btn-danger { box-shadow: var(--press); }
+.btn-resume { color: var(--ink-line); box-shadow: var(--press); }
+
+/* headings & logo: inked lettering */
+h1, h2, h3,
+.top-bar h2,
+.modal-head h2,
+.shop-header h2 { text-shadow: 2px 3px 0 var(--ink-line); }
+.logo-multi,
+.logo-mine,
+.logo-dash { -webkit-text-stroke: 3.5px var(--ink-line); text-shadow: 4px 6px 0 var(--ink-line); }
+
+/* bars: inked tracks with hatching in the empty part */
+.bar-track,
+.boss-bar-track { background: var(--hatch), var(--sunken); border-width: 3px; border-radius: 6px 9px 6px 8px; }
+.hud-dash-box,
+.hud-ult-box,
+.hud-rally-box { background: var(--hatch), var(--sunken); border-width: 3px; border-radius: 7px 11px 8px 10px; }
+.hud-level-pill { border-radius: 6px 9px 7px 8px; }
+
+kbd { border-width: 2.5px; border-bottom-width: 2.5px; box-shadow: 2px 2px 0 var(--ink-line); }
+
+/* Run setup: stacked-risk explanation */
+.stack-note {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--cream);
+  background: var(--sunken);
+  border-radius: 8px;
+}
+
+/* Shop: weapon family banner + plain "good / weak for your engineer" line */
+.family-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--fc) 22%, transparent);
+  border: 2px solid color-mix(in srgb, var(--fc) 70%, var(--ink-line));
+  text-align: center;
+}
+.family-banner .family-name {
+  font-family: var(--font-button);
+  font-weight: 600;
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+.family-banner .family-blurb { font-size: 0.7rem; line-height: 1.25; color: var(--cream); opacity: 0.85; }
+.affinity-banner {
+  text-align: center;
+  font-family: var(--font-button);
+  font-weight: 500;
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+.affinity-banner b { font-weight: 600; }
+.affinity-banner.good { background: rgba(111, 168, 79, 0.25); color: #CFE8B8; border: 2px solid #6FA84F; }
+.affinity-banner.bad { background: rgba(201, 67, 58, 0.22); color: #F2C1B8; border: 2px solid #C9433A; }
+.slot-family {
+  font-size: 0.66rem;
+  font-weight: 500;
+  color: var(--cream);
+  background: color-mix(in srgb, var(--fc) 30%, transparent);
+  border-radius: 6px;
+  padding: 1px 6px;
+  margin: 1px auto 0;
+  width: fit-content;
+}
+
+/* Boss bar: pinned to the top under the wave timer, never over the engineer
+   (the camera keeps the player in the middle of the screen) */
+.hud-boss-bar {
+  position: fixed;
+  top: 96px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  width: min(520px, 80vw);
+  z-index: 6;
+}
+.hud-boss-bar:not(.hidden) ~ .wave-banner { translate: 0 72px; }

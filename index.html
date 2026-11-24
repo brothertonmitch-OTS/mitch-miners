@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>Mitch's Miners — Alien Engineer Auto-Roguelike</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/skin.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Live 60 FPS Arena Canvas -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- ================================================================ -->
+    <!-- TITLE SCREEN                                                     -->
+    <!-- ================================================================ -->
+    <section id="screen-title" class="overlay-screen">
+      <div class="title-card">
+        <h1 class="game-logo">
+          <span class="logo-multi">MITCH'S</span><span class="logo-dash"> </span><span class="logo-mine">MINERS</span>
+        </h1>
+        <p class="title-tagline">Alien engineers. Endless swarms. Build your arsenal.</p>
+
+        <div class="title-actions">
+          <div class="title-primary-row">
+            <button id="btn-title-play" class="btn-primary btn-xl btn-title-main">PLAY</button>
+            <button id="btn-title-resume" class="btn-resume btn-xl hidden">RESUME RUN</button>
+          </div>
+          <div class="title-sub-actions">
+            <button id="btn-title-daily" class="btn-secondary">Daily</button>
+            <button id="btn-title-practice" class="btn-secondary">Practice</button>
+            <button id="btn-title-lab" class="btn-secondary">Lab · <span id="title-shards">0</span> ◈</button>
+            <button id="btn-title-codex" class="btn-secondary">Codex</button>
+            <button id="btn-title-settings" class="btn-secondary">Settings</button>
+          </div>
+          <span id="gp-status-pill" class="gp-status-pill hidden">🎮 Controller Ready</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- ALIEN ENGINEER ROSTER SELECTION                                  -->
+    <!-- ================================================================ -->
+    <section id="screen-select" class="overlay-screen hidden">
+      <div class="select-shell">
+        <header class="top-bar">
+          <div class="top-bar-left">
+            <button id="btn-select-back" class="btn-ghost">← Title</button>
+            <div>
+              <h2>CHOOSE ENGINEER</h2>
+            </div>
+          </div>
+          <div class="top-bar-right">
+            <button id="btn-select-lab" class="btn-secondary">Lab · <span id="select-shards">0</span> ◈</button>
+          </div>
+        </header>
+
+        <div class="select-body">
+          <div class="select-left">
+            <div id="char-grid" class="char-grid"></div>
+
+          </div>
+
+          <aside class="dossier-panel">
+            <div class="dossier-head">
+              <div id="dossier-avatar" class="dossier-avatar"></div>
+              <div>
+                <h3 id="dossier-name">Zorp</h3>
+                <div id="dossier-title" class="dossier-title">NASA Orbital Engineer</div>
+              </div>
+            </div>
+            <p id="dossier-bio" class="dossier-bio"></p>
+
+            <div class="dossier-block passive-block">
+              <div class="block-label">PASSIVE — <span id="dossier-passive-name"></span></div>
+              <div id="dossier-passive-desc" class="passive-desc"></div>
+            </div>
+
+            <div class="dossier-block ult-block">
+              <div class="block-label">ULTIMATE — <span id="dossier-ult-name"></span></div>
+              <div id="dossier-ult-desc" class="passive-desc"></div>
+            </div>
+
+            <div class="dossier-block">
+              <div class="block-label">STARTING WEAPON</div>
+              <div id="dossier-tool" class="dossier-tool"></div>
+            </div>
+
+            <details class="dossier-more">
+              <summary>Stats, records &amp; hat</summary>
+              <div class="dossier-block">
+                <div class="block-label">BASE STATS</div>
+                <div id="dossier-stats" class="dossier-stats"></div>
+              </div>
+              <div id="dossier-records" class="dossier-records"></div>
+              <div class="dossier-wardrobe-row">
+                <span class="block-label" style="margin:0;">HAT</span>
+                <div id="dossier-hat-picker" class="hat-mini-picker"></div>
+              </div>
+            </details>
+
+            <div class="dossier-actions">
+              <button id="btn-select-next" class="btn-primary btn-launch">NEXT</button>
+              <button id="btn-dossier-practice" class="btn-practice btn-dossier-practice hidden">PRACTICE (150 ◈)</button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- IN-RUN HUD OVERLAY                                               -->
+    <!-- ================================================================ -->
+    <div id="hud" class="hud hidden">
+      <div class="hud-top">
+        <!-- Player Vitals -->
+        <div class="hud-vitals">
+          <div id="hud-avatar" class="hud-avatar"></div>
+          <div class="hud-bars">
+            <div class="hud-name-row">
+              <span id="hud-charname">Zorp</span>
+              <span id="hud-level" class="hud-level-pill">LV 1</span>
+              <span id="hud-practice-pill" class="hud-practice-pill hidden">🧪 PRACTICE</span>
+            </div>
+            <div class="bar-track hp-track">
+              <div id="hud-hp-fill" class="bar-fill hp-fill"></div>
+              <div id="hud-shield-fill" class="bar-fill shield-fill"></div>
+              <span id="hud-hp-text" class="bar-text">100/100</span>
+            </div>
+            <div class="bar-track xp-track">
+              <div id="hud-xp-fill" class="bar-fill xp-fill"></div>
+            </div>
+            <div class="hud-currencies">
+              <span class="scrap-pill">◆ <b id="hud-scrap">0</b> SCRAP</span>
+              <span class="kill-pill">✕ <b id="hud-kills">0</b></span>
+            </div>
+            <div id="hud-hero-traits" class="hud-hero-traits"></div>
+          </div>
+        </div>
+
+        <!-- Wave, Timer & Live Event Timeline Bar -->
+        <div class="hud-center">
+          <div id="hud-wave-num" class="hud-wave-num">WAVE 1 / 12</div>
+          <div id="hud-wave-timer" class="hud-wave-timer">32s</div>
+          <div id="hud-biome" class="hud-biome">Sector I — Asteroid Crust</div>
+          <div id="hud-wave-bar" class="hud-wave-bar" title="Current wave timeline: Swarm Surges, Elite Spawns, and Final 40% Rush">
+            <div class="wave-bar-rush-zone"></div>
+            <div id="hud-wave-bar-fill" class="wave-bar-fill"></div>
+            <div id="hud-wave-bar-markers" class="wave-bar-markers"></div>
+          </div>
+          <div id="hud-roadmap" class="hud-roadmap"></div>
+        </div>
+
+        <!-- Controls -->
+        <div class="hud-controls">
+          <button id="btn-hud-pause" class="btn-hud" title="Pause (Esc)">❚❚</button>
+        </div>
+      </div>
+
+      <!-- Persistent Live Mid-Wave Arena Event Tracker Pill -->
+      <div id="hud-event-pill" class="hud-event-pill hidden">
+        <div id="hud-event-fill" class="hud-event-fill"></div>
+        <span id="hud-event-text">📡 EVENT ACTIVE</span>
+      </div>
+
+      <!-- Boss Bar -->
+      <div id="hud-boss-bar" class="hud-boss-bar hidden">
+        <div class="boss-bar-head">
+          <span id="hud-boss-name">MK-IX CORE EXCAVATOR</span>
+          <span id="hud-boss-hp">1200 / 1200</span>
+        </div>
+        <div class="boss-bar-track">
+          <div id="hud-boss-fill" class="boss-bar-fill"></div>
+        </div>
+      </div>
+
+      <!-- Wave Start Banner -->
+      <div id="wave-banner" class="wave-banner hidden">
+        <div id="wave-banner-title" class="wave-banner-title">WAVE 1</div>
+        <div id="wave-banner-sub" class="wave-banner-sub"></div>
+      </div>
+
+      <!-- Bottom Dash, Ultimate Overdrive & Synergies -->
+      <div class="hud-bottom">
+        <div class="hud-ability-stack">
+          <div id="hud-dash-box" class="hud-dash-box ready">
+            <div id="hud-dash-fill" class="hud-dash-fill"></div>
+            <span id="hud-dash-label">JET-DASH READY [SPACE]</span>
+          </div>
+          <button id="hud-ult-box" class="hud-ult-box" title="Press [E] or click to unleash Ultimate Overdrive">
+            <div id="hud-ult-fill" class="hud-ult-fill"></div>
+            <span id="hud-ult-label">[E] OVERDRIVE 40%</span>
+          </button>
+          <button id="hud-rally-box" class="hud-rally-box hidden" title="Press [F] or click to rally all Pets onto the highest-priority threat (+35% Pet DMG & Speed)">
+            <div id="hud-rally-fill" class="hud-rally-fill"></div>
+            <span id="hud-rally-label">🐾 [F] PET RALLY</span>
+          </button>
+        </div>
+        <div id="hud-synergies" class="hud-synergies"></div>
+      </div>
+
+      <!-- Mobile / Touch Thumb Action Buttons (auto-shown on touch devices or Touch Mode) -->
+      <div id="touch-controls" class="touch-controls">
+        <div class="touch-stick-hint">DRAG LEFT SIDE TO MOVE</div>
+        <div class="touch-btn-cluster">
+          <button id="btn-touch-rally" class="touch-act-btn touch-rally hidden" type="button">
+            <span class="touch-ico">🐾</span>
+            <span class="touch-lbl">RALLY</span>
+          </button>
+          <button id="btn-touch-ult" class="touch-act-btn touch-ult" type="button">
+            <span class="touch-ico">⚡</span>
+            <span id="touch-ult-lbl" class="touch-lbl">0%</span>
+          </button>
+          <button id="btn-touch-dash" class="touch-act-btn touch-dash ready" type="button">
+            <span class="touch-ico">💨</span>
+            <span id="touch-dash-lbl" class="touch-lbl">DASH</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- ENGINEERING WORKSHOP (BETWEEN-WAVE BROTATO SHOP)                 -->
+    <!-- ================================================================ -->
+    <section id="screen-shop" class="overlay-screen hidden">
+      <div class="shop-shell">
+        <header class="shop-header">
+          <div>
+            <h2 id="shop-wave-cleared">ENGINEERING WORKSHOP — WAVE 1 CLEARED</h2>
+            <div id="shop-next-info" class="shop-next-info">Next: Wave 2</div>
+          </div>
+          <div class="shop-header-right">
+            <div class="shop-scrap-box">◆ <b id="shop-scrap">0</b> <span>SCRAP</span></div>
+            <button id="btn-shop-reroll" class="btn-secondary">Reroll</button>
+            <button id="btn-shop-nextwave" class="btn-primary">LAUNCH WAVE 2 →</button>
+          </div>
+        </header>
+
+        <div id="shop-crate-banner" class="crate-banner hidden"></div>
+        <div id="shop-roadmap-wrap" class="shop-roadmap-wrap">
+          <div class="roadmap-head">
+            <span class="roadmap-title">WAVES</span>
+            <div class="roadmap-legend">
+              <span class="rm-leg boss">☠ Boss</span>
+              <span class="rm-leg elite">★ Elite</span>
+              <span class="rm-leg horde">⚡ Horde</span>
+            </div>
+          </div>
+          <div id="shop-roadmap" class="wave-roadmap"></div>
+        </div>
+
+        <div class="shop-layout">
+          <div class="shop-main">
+            <div id="shop-hero-bar" class="shop-hero-bar"></div>
+            <div class="section-label">SHOP</div>
+            <div id="shop-cards" class="shop-cards"></div>
+
+            <div class="loadout-header">
+              <span class="section-label">WEAPONS · <span id="shop-slots-cap">6</span> SLOTS</span>
+              <div class="loadout-header-right">
+                <button id="btn-shop-merge-all" class="btn-merge-all hidden" type="button">⚡ MERGE ALL</button>
+              </div>
+            </div>
+            <div id="shop-slots" class="shop-slots"></div>
+            <div id="slot-actions" class="slot-actions hidden"></div>
+
+            <div class="owned-items-section">
+              <div class="loadout-header">
+                <span class="section-label">ITEMS · <span id="shop-items-count">0</span></span>
+              </div>
+              <div id="shop-item-inspect" class="item-inspect-bar hidden"></div>
+              <div id="shop-owned-items" class="shop-owned-items"></div>
+            </div>
+          </div>
+
+          <aside class="shop-sidebar">
+            <div class="sidebar-section">
+              <div class="section-label">SYNERGIES</div>
+              <div id="shop-synergies" class="shop-synergies"></div>
+            </div>
+
+            <div class="sidebar-section">
+              <div class="sidebar-tab-row">
+                <button id="btn-side-stats" class="side-tab active">STATS</button>
+                <button id="btn-side-dps" class="side-tab">DPS</button>
+              </div>
+              <div id="shop-stats" class="shop-stats"></div>
+              <div id="shop-dps" class="shop-dps hidden"></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- MODALS: LEVEL-UP, CORE LAB, CODEX, PAUSE, END                    -->
+    <!-- ================================================================ -->
+    <div id="modal-levelup" class="modal hidden">
+      <div class="modal-card modal-wide">
+        <div class="modal-head">
+          <div>
+            <h2>LEVEL UP</h2>
+            <p id="levelup-remaining" class="muted">Pending Upgrades: 1</p>
+          </div>
+          <div class="shop-scrap-box small">◆ <b id="levelup-scrap">0</b></div>
+        </div>
+        <div id="levelup-grid" class="draft-grid"></div>
+        <div class="modal-foot">
+          <button id="btn-level-reroll" class="btn-secondary">Reroll</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-crate" class="modal hidden">
+      <div class="modal-card modal-sm crate-modal-card">
+        <div class="crate-modal-badge">SUPPLY CRATE</div>
+        <div id="crate-remaining" class="muted small" style="margin-bottom:10px;">Pending Crates: 1</div>
+        <div id="crate-card-body" class="crate-card-body"></div>
+        <div class="crate-actions">
+          <button id="btn-crate-take" class="btn-primary">TAKE</button>
+          <button id="btn-crate-recycle" class="btn-secondary">RECYCLE (+15 SCRAP)</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-daily" class="modal hidden">
+      <div class="modal-card modal-sm daily-modal-card">
+        <div class="modal-head" style="margin-bottom:10px;">
+          <h2>DAILY RUN</h2>
+          <button id="btn-daily-close" class="btn-ghost">✕ Close</button>
+        </div>
+        <div id="daily-body" class="daily-body"></div>
+        <button id="btn-daily-launch" class="btn-daily btn-xl" style="width:100%;margin-top:14px;">START DAILY (2× ◈)</button>
+      </div>
+    </div>
+
+    <div id="modal-practice" class="modal hidden">
+      <div class="modal-card modal-xl">
+        <div class="modal-head">
+          <div>
+            <h2>PRACTICE</h2>
+            <p class="muted">Try a locked engineer for 3 waves (150 ◈).</p>
+          </div>
+          <div class="lab-head-right">
+            <div class="shard-pill"><b id="practice-shards">0</b> ◈ SHARDS</div>
+            <button id="btn-practice-close" class="btn-ghost">✕ Close</button>
+          </div>
+        </div>
+        <div id="practice-body" class="practice-body">
+          <div id="practice-grid" class="practice-grid"></div>
+          <div id="practice-empty" class="practice-empty hidden">
+            <h3>✓ ALL 20 ALIEN ENGINEERS UNLOCKED!</h3>
+            <p class="muted">You've unlocked every locked engineer! You can now deploy any of them directly from <b>Start Expedition</b>.</p>
+          </div>
+        </div>
+        <div class="modal-foot practice-foot">
+          <div id="practice-selected-info" class="practice-selected-info muted">Select a locked Alien Engineer above to test-drive.</div>
+          <button id="btn-practice-launch" class="btn-practice btn-xl" disabled>START PRACTICE (150 ◈)</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-lab" class="modal hidden">
+      <div class="modal-card modal-xl">
+        <div class="modal-head">
+          <div>
+            <h2>CORE LAB</h2>
+          </div>
+          <div class="lab-head-right">
+            <div class="shard-pill"><b id="lab-shards">0</b> ◈ SHARDS</div>
+            <button id="btn-lab-close" class="btn-ghost">✕ Close</button>
+          </div>
+        </div>
+        <div id="lab-career-strip" class="lab-career-strip"></div>
+        <div class="lab-body">
+          <div>
+            <div class="section-label">UPGRADES</div>
+            <div id="lab-upgrades-grid" class="lab-grid"></div>
+            <div class="section-label" style="margin-top:16px;">HATS</div>
+            <div id="lab-hats-grid" class="lab-hats-grid"></div>
+          </div>
+          <div>
+            <div class="section-label">BADGES <span id="lab-ach-progress" class="ach-prog-pill">0 / 18</span></div>
+            <div id="lab-achievements" class="ach-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-codex" class="modal hidden">
+      <div class="modal-card modal-xl">
+        <div class="modal-head">
+          <div>
+            <h2>CODEX</h2>
+          </div>
+          <button id="btn-codex-close" class="btn-ghost">✕ Close</button>
+        </div>
+        <div class="codex-tabs">
+          <button class="codex-tab active" data-tab="tools">Weapons</button>
+          <button class="codex-tab" data-tab="pets">Pets</button>
+          <button class="codex-tab" data-tab="modules">Items</button>
+          <button class="codex-tab" data-tab="synergies">Synergies</button>
+          <button class="codex-tab" data-tab="enemies">Enemies</button>
+        </div>
+        <div id="codex-body" class="codex-body"></div>
+      </div>
+    </div>
+
+    <div id="modal-pause" class="modal hidden">
+      <div class="modal-card modal-sm">
+        <h2>PAUSED</h2>
+        <div id="pause-hero-traits" class="pause-hero-traits"></div>
+        <div class="pause-btns">
+          <button id="btn-pause-resume" class="btn-primary">Resume</button>
+          <div class="pause-row">
+            <button class="btn-secondary btn-guide-open">How to Play</button>
+            <button class="btn-secondary btn-mixer-open">Audio</button>
+          </div>
+          <div class="pause-row">
+            <button class="btn-secondary btn-music-toggle">Music: ON</button>
+            <button class="btn-secondary btn-fullscreen-toggle">Fullscreen</button>
+            <button id="btn-hud-mouse" class="btn-secondary">Move: WASD</button>
+          </div>
+          <button id="btn-pause-restart" class="btn-secondary">Restart Run</button>
+          <button id="btn-pause-quit" class="btn-danger">Quit to Menu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Visual Quick-Guide Modal -->
+    <div id="modal-guide" class="modal hidden">
+      <div class="modal-card modal-wide guide-modal-card">
+        <div class="modal-head">
+          <div>
+            <h2>HOW TO PLAY</h2>
+          </div>
+          <button id="btn-guide-close" class="btn-ghost">✕ Close</button>
+        </div>
+        <div class="guide-grid">
+          <div class="guide-card" style="--gc:#34F5C5">
+            <div class="guide-ico">🕹</div>
+            <h3>1. Auto-Aim &amp; Dodge</h3>
+            <p>All weapons, turrets, drones &amp; pets fire <b>automatically</b>! Watch for pulsing red <b>✕</b> spawn markers and press <kbd>SPACE</kbd> / <kbd>A</kbd> (or tap <b>DASH</b>) to dodge through danger.</p>
+          </div>
+          <div class="guide-card" style="--gc:#FFD466">
+            <div class="guide-ico">⚡</div>
+            <h3>2. Ultimates &amp; Pet Rally</h3>
+            <p>Eliminating foes charges your unique Alien Ultimate — press <kbd>E</kbd> / <kbd>X</kbd> when it chimes at <b>100%</b>! Press <kbd>F</kbd> / <kbd>B</kbd> to <b>Rally Pets</b> onto Bosses &amp; Elites.</p>
+          </div>
+          <div class="guide-card" style="--gc:#6EA5FF">
+            <div class="guide-ico">🔧</div>
+            <h3>3. Merge, Lock &amp; Synergies</h3>
+            <p>Buy matching weapons (or tap <b>⚡ MERGE ALL</b>) to upgrade up to <b>Mk.IV★ Overcharged</b>! Tap <b>🔒 LOCK</b> to save cards for next wave, and click any <b>Synergy</b> in the Workshop to highlight matching gear.</p>
+          </div>
+          <div class="guide-card" style="--gc:#E879F9">
+            <div class="guide-ico">📡</div>
+            <h3>4. Live Arena Events</h3>
+            <p>On Wave 2+, follow edge radar arrows for <b>📡 Overclock Beacons</b>, <b>💰 Golden Cargo-Bots</b>, <b>⚡ Glowing Floor Hubs</b>, and <b>☄️ Ore Meteors</b> for huge Scrap, Crates &amp; Overdrive buffs!</p>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button id="btn-guide-gotit" class="btn-primary btn-xl">GOT IT</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audio Mixer Modal -->
+    <div id="modal-mixer" class="modal hidden">
+      <div class="modal-card modal-sm">
+        <div class="modal-head">
+          <h2>AUDIO</h2>
+          <button id="btn-mixer-close" class="btn-ghost">✕ Close</button>
+        </div>
+        <div class="mixer-group">
+          <div class="mixer-row">
+            <span>Music Volume</span>
+            <b id="mixer-music-val">65%</b>
+          </div>
+          <input id="slider-music-vol" type="range" min="0" max="100" value="65" class="mixer-slider" />
+        </div>
+        <div class="mixer-group">
+          <div class="mixer-row">
+            <span>SFX Volume</span>
+            <b id="mixer-sfx-val">80%</b>
+          </div>
+          <input id="slider-sfx-vol" type="range" min="0" max="100" value="80" class="mixer-slider" />
+        </div>
+        <div class="mixer-group">
+          <div class="section-label" style="margin-bottom:8px;">SOUNDTRACK</div>
+          <div id="mixer-tracks" class="mixer-tracks">
+            <button class="track-pill active" data-track="auto">Auto (Dynamic)</button>
+            <button class="track-pill" data-track="combat">Arcade Combat</button>
+            <button class="track-pill" data-track="synthwave">Neon Synthwave</button>
+            <button class="track-pill" data-track="menu">Shop Groove</button>
+            <button class="track-pill" data-track="boss">Boss Overdrive</button>
+          </div>
+        </div>
+        <div class="mixer-group">
+          <div class="section-label" style="margin-bottom:8px;">DISPLAY</div>
+          <div class="mixer-tracks">
+            <button id="btn-pref-shake" class="track-pill active">Screen Shake: ON</button>
+            <button id="btn-pref-dmgnums" class="track-pill active">Damage Numbers: ON</button>
+            <button id="btn-pref-touch" class="track-pill">📱 Touch UI: AUTO</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-end" class="modal hidden">
+      <div class="modal-card modal-wide">
+        <div class="end-head">
+          <div id="end-avatar" class="end-avatar"></div>
+          <div>
+            <h2 id="end-title">EXPEDITION TERMINATED</h2>
+            <p id="end-sub" class="muted"></p>
+          </div>
+        </div>
+        <div id="end-stats" class="end-stats-grid"></div>
+        <div class="section-label">BUILD</div>
+        <div id="end-loadout" class="end-loadout"></div>
+        <div id="end-items-wrap" class="hidden">
+          <div class="section-label" style="margin-top:10px;">ITEMS</div>
+          <div id="end-items" class="shop-owned-items"></div>
+        </div>
+        <div id="end-dps-wrap" class="hidden">
+          <div class="section-label" style="margin-top:10px;">DAMAGE</div>
+          <div id="end-dps" class="shop-dps end-dps-grid"></div>
+        </div>
+        <div class="end-actions">
+          <button id="btn-end-endless" class="btn-primary hidden">ENDLESS MODE ∞</button>
+          <button id="btn-end-retry" class="btn-primary">PLAY AGAIN</button>
+          <button id="btn-end-roster" class="btn-secondary">CHANGE ENGINEER</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Run Setup: hazard tier, biome & modifiers (second step after choosing an engineer) -->
+    <div id="modal-runsetup" class="modal hidden">
+      <div class="modal-card modal-wide runsetup-card">
+        <div class="modal-head">
+          <h2>RUN SETUP</h2>
+          <button id="btn-runsetup-back" class="btn-ghost">&larr; Back</button>
+        </div>
+        <div class="hazard-bar">
+              <div class="hazard-bar-top">
+                <span class="section-label">HAZARD TIER</span>
+                <div id="hazard-picker" class="hazard-picker"></div>
+              </div>
+              <div id="hazard-desc" class="hazard-desc"></div>
+
+              <div class="setup-row">
+                <span class="section-label">ARENA BIOME</span>
+                <div id="biome-picker" class="setup-pills"></div>
+              </div>
+
+              <div class="setup-row">
+                <span class="section-label">RUN MODIFIERS <b id="modifier-mult" class="mod-mult-badge hidden">+0% ◈</b></span>
+                <div id="modifier-picker" class="setup-pills"></div>
+                <p id="modifier-stack-note" class="stack-note hidden">⚖ Stacked risk (H4+ with 3+ penalty modifiers): penalties are softened. Glass Cannon −15% HP, cursed enemies +45% HP and no bonus damage, High Stakes +15% HP, Blood Harvest keeps 40% regen, longer invulnerability after a hit.</p>
+              </div>
+            </div>
+        <div class="modal-foot">
+          <button id="btn-launch-run" class="btn-primary btn-xl">DEPLOY</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings (title screen) -->
+    <div id="modal-settings" class="modal hidden">
+      <div class="modal-card modal-sm">
+        <div class="modal-head">
+          <h2>SETTINGS</h2>
+          <button id="btn-settings-close" class="btn-ghost">&#10005;</button>
+        </div>
+        <div class="pause-btns">
+          <button class="btn-secondary btn-guide-open">How to Play</button>
+          <button class="btn-secondary btn-mixer-open">Audio</button>
+          <div class="pause-row">
+            <button class="btn-secondary btn-music-toggle">Music: ON</button>
+            <button class="btn-secondary btn-fullscreen-toggle">Fullscreen</button>
+          </div>
+          <a href="trailer.html" class="btn-secondary settings-link">Watch Trailer</a>
+        </div>
+        <div class="settings-controls">
+          <span><kbd>WASD</kbd> Move</span>
+          <span><kbd>SPACE</kbd> Dash</span>
+          <span><kbd>E</kbd> Ultimate</span>
+          <span><kbd>F</kbd> Pet Rally</span>
+          <span><kbd>ESC</kbd> Pause</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Achievement Toast -->
+    <div id="ach-toast" class="ach-toast hidden">
+      <div class="ach-toast-badge">★ BADGE UNLOCKED</div>
+      <div id="ach-toast-name" class="ach-toast-name"></div>
+      <div id="ach-toast-desc" class="ach-toast-desc"></div>
+    </div>
+  </div>
+
+  <!-- Ordered Classic Scripts: works both via double-click file:// AND localhost! -->
+  <script src="js/art/kit.js"></script>
+  <script src="js/art/characters.js"></script>
+  <script src="js/art/tools.js"></script>
+  <script src="js/art/pets.js"></script>
+  <script src="js/art/enemies.js"></script>
+  <script src="js/art/hats.js"></script>
+  <script src="js/art/icons.js"></script>
+  <script src="js/art/world.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/data/characters.js"></script>
+  <script src="js/data/contraptions.js"></script>
+  <script src="js/data/enemies.js"></script>
+  <script src="js/meta.js"></script>
+  <script src="js/engine/core.js"></script>
+  <script src="js/engine/input.js"></script>
+  <script src="js/engine/run.js"></script>
+  <script src="js/engine/abilities.js"></script>
+  <script src="js/engine/update.js"></script>
+  <script src="js/engine/events.js"></script>
+  <script src="js/engine/player.js"></script>
+  <script src="js/engine/spawning.js"></script>
+  <script src="js/engine/weapons.js"></script>
+  <script src="js/engine/pets.js"></script>
+  <script src="js/engine/combat.js"></script>
+  <script src="js/engine/enemies.js"></script>
+  <script src="js/engine/fx.js"></script>
+  <script src="js/engine/render-world.js"></script>
+  <script src="js/engine/render-cave.js"></script>
+  <script src="js/engine/render-actors.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

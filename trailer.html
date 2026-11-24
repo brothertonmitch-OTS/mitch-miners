@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mitch's Miners — Official Live Gameplay Trailer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #1F1612;
+      --panel: #3A2A22;
+      --card: #4A372C;
+      --border: #1A120E;
+      --mint: #FFC233;
+      --gold: #FFE07A;
+      --coral: #E8483F;
+      --ink: #FFF2DC;
+      --muted: #D8BE9C;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', system-ui, sans-serif; font-weight: 700;
+      background: radial-gradient(circle at 50% 18%, #3A2A22 0%, #1F1612 72%);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 18px 20px;
+      gap: 14px;
+    }
+    .trailer-shell {
+      width: min(1180px, calc((100dvh - 150px) * 16 / 9), 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .trailer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .trailer-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .trailer-brand h1 {
+      font-size: 1.35rem;
+      letter-spacing: 0.04em;
+    }
+    .trailer-brand .mint { color: var(--mint); }
+    .trailer-brand .dash { color: var(--gold); }
+    .live-badge {
+      font-family: 'Lilita One', 'Arial Black', sans-serif; font-weight: 400;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(52, 245, 197, 0.14);
+      border: 1px solid rgba(52, 245, 197, 0.45);
+      color: var(--mint);
+    }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .stage-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #060912;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 2px solid rgba(52, 245, 197, 0.38);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.72), 0 0 36px rgba(52, 245, 197, 0.14);
+    }
+    #trailer-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: pointer;
+    }
+    .sound-prompt {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(13, 18, 30, 0.88);
+      border: 1.5px solid var(--gold);
+      color: var(--gold);
+      font-family: 'Lilita One', 'Arial Black', sans-serif; font-weight: 400;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      transition: transform 0.14s;
+    }
+    .sound-prompt:hover { transform: scale(1.04); }
+    .sound-prompt.hidden { display: none; }
+
+    .controls-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .progress-bar {
+      flex: 1;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--mint), #60EFFF, var(--gold));
+      border-radius: 999px;
+      transition: width 0.08s linear;
+    }
+    .clock {
+      font-family: 'Lilita One', 'Arial Black', sans-serif; font-weight: 400;
+      font-size: 0.8rem;
+      color: var(--muted);
+      min-width: 82px;
+      text-align: right;
+    }
+    .chapter-bar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+    .chap-btn {
+      padding: 6px 6px;
+      border-radius: 8px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'Lilita One', 'Arial Black', sans-serif; font-weight: 400;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.14s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chap-btn:hover { color: var(--ink); border-color: rgba(255,255,255,0.3); }
+    .chap-btn.active {
+      background: rgba(52, 245, 197, 0.16);
+      border-color: var(--mint);
+      color: var(--mint);
+    }
+    .transport-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .transport-left, .transport-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      color: var(--ink);
+      font-family: 'Lilita One', 'Arial Black', sans-serif; font-weight: 400;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.12s, border-color 0.14s, background 0.14s;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.35); }
+    .btn-primary {
+      background: var(--mint);
+      color: #09101E;
+      border-color: var(--mint);
+    }
+    .btn-primary:hover { background: #5BFFD6; border-color: #5BFFD6; }
+    .btn-record {
+      background: rgba(255, 212, 102, 0.14);
+      border-color: rgba(255, 212, 102, 0.55);
+      color: var(--gold);
+    }
+    .btn-record.recording {
+      background: var(--coral);
+      border-color: var(--coral);
+      color: #FFFFFF;
+    }
+    .rec-status {
+      font-family: 'Lilita One', 'Arial Black', sans-serif; font-weight: 400;
+      font-size: 0.76rem;
+      color: var(--gold);
+    }
+  </style>
+</head>
+<body>
+  <div class="trailer-shell">
+    <header class="trailer-top">
+      <div class="trailer-brand">
+        <h1>MITCH'S<span class="dash"> </span><span class="mint">MINERS</span></h1>
+        <span class="live-badge">● LIVE ENGINE GAMEPLAY TRAILER (44s)</span>
+      </div>
+      <div class="top-actions">
+        <a href="index.html" class="btn btn-primary">▶ PLAY MITCH'S MINERS NOW</a>
+      </div>
+    </header>
+
+    <div class="stage-wrap">
+      <canvas id="trailer-canvas" width="1280" height="720"></canvas>
+      <button id="sound-prompt" class="sound-prompt">🔊 Click to Enable Synthwave Audio &amp; Restart</button>
+    </div>
+
+    <div class="controls-panel">
+      <div class="progress-row">
+        <div id="progress-bar" class="progress-bar" title="Click anywhere to jump">
+          <div id="progress-fill" class="progress-fill"></div>
+        </div>
+        <span id="trailer-clock" class="clock">0:00 / 0:44</span>
+      </div>
+
+      <div id="chapter-bar" class="chapter-bar"></div>
+
+      <div class="transport-row">
+        <div class="transport-left">
+          <button id="btn-play-pause" class="btn">⏸ Pause</button>
+          <button id="btn-restart" class="btn">↺ Restart</button>
+          <button id="btn-mute" class="btn">🔊 Sound: ON</button>
+        </div>
+        <div class="transport-right">
+          <span id="rec-status" class="rec-status"></span>
+          <button id="btn-record" class="btn btn-record">⬇ Record &amp; Download Video (.webm)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actual MULTI-MINE Game Engine + Choreographed Trailer Director -->
+  <script src="js/art/kit.js"></script>
+  <script src="js/art/characters.js"></script>
+  <script src="js/art/tools.js"></script>
+  <script src="js/art/pets.js"></script>
+  <script src="js/art/enemies.js"></script>
+  <script src="js/art/hats.js"></script>
+  <script src="js/art/icons.js"></script>
+  <script src="js/art/world.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/data/characters.js"></script>
+  <script src="js/data/contraptions.js"></script>
+  <script src="js/data/enemies.js"></script>
+  <script src="js/meta.js"></script>
+  <script src="js/engine/core.js"></script>
+  <script src="js/engine/input.js"></script>
+  <script src="js/engine/run.js"></script>
+  <script src="js/engine/abilities.js"></script>
+  <script src="js/engine/update.js"></script>
+  <script src="js/engine/events.js"></script>
+  <script src="js/engine/player.js"></script>
+  <script src="js/engine/spawning.js"></script>
+  <script src="js/engine/weapons.js"></script>
+  <script src="js/engine/pets.js"></script>
+  <script src="js/engine/combat.js"></script>
+  <script src="js/engine/enemies.js"></script>
+  <script src="js/engine/fx.js"></script>
+  <script src="js/engine/render-world.js"></script>
+  <script src="js/engine/render-cave.js"></script>
+  <script src="js/engine/render-actors.js"></script>
+  <script src="js/trailer.js"></script>
+</body>
+</html>
