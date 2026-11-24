@@ -6,7 +6,7 @@
 // uses them); they are only drawn while that event is active.
 // ============================================================================
 (function () {
-  const { ARENA_W, ARENA_H } = window.MM.EngineUtil;
+  const { ARENA_W, ARENA_H, bpCanvas, drawBlueprintGrid } = window.MM.EngineUtil;
   const INK = '#1E1A17';
 
   // Small deterministic PRNG so cosmetic floor detail never touches Math.random
@@ -91,7 +91,7 @@
       const FS = 2;
       c.width = ARENA_W * FS;
       c.height = ARENA_H * FS;
-      const g = c.getContext('2d');
+      const g = bpCanvas(c.getContext('2d'));
       g.scale(FS, FS);
       const rnd = prng(hash(biome.id));
       const rim = RIM[biome.rim] || RIM.chasm;
@@ -295,6 +295,27 @@
       g.lineWidth = 1.8;
       g.stroke();
 
+      // blueprint sheet: grid over the whole floor, a title block in the corner
+      const raw = c.getContext('2d');
+      raw.save();
+      if (window.MM_ART_STYLE === 'ink') raw.globalAlpha = 0; // no sheet furniture in ink style
+      raw.setTransform(FS, 0, 0, FS, 0, 0);
+      drawBlueprintGrid(raw, ARENA_W, ARENA_H, 40);
+      const tbW = 300;
+      const tbH = 74;
+      const tx = ARENA_W - inset - tbW - 26;
+      const ty = ARENA_H - inset - tbH - 26;
+      raw.strokeStyle = 'rgba(234,242,255,0.55)';
+      raw.lineWidth = 2;
+      raw.strokeRect(tx, ty, tbW, tbH);
+      raw.beginPath(); raw.moveTo(tx, ty + 30); raw.lineTo(tx + tbW, ty + 30); raw.moveTo(tx + 190, ty + 30); raw.lineTo(tx + 190, ty + tbH); raw.stroke();
+      raw.fillStyle = 'rgba(234,242,255,0.6)';
+      raw.font = '600 17px "Fredoka", "Lexend", sans-serif';
+      raw.fillText("MITCH'S MINERS — FIELD SHEET", tx + 12, ty + 21);
+      raw.font = '500 13px "Lexend", sans-serif';
+      raw.fillText(String(biome.name || biome.id).toUpperCase(), tx + 12, ty + 56);
+      raw.fillText('SCALE 1:20', tx + 202, ty + 56);
+      raw.restore();
       this.floorCache = c;
       this.floorCacheBiomeId = biome.id;
       return c;
@@ -423,7 +444,7 @@
         const c = document.createElement('canvas');
         c.width = Math.ceil(W * dpr);
         c.height = Math.ceil(H * dpr);
-        const g = c.getContext('2d');
+        const g = bpCanvas(c.getContext('2d'));
         g.scale(dpr, dpr);
         g.lineJoin = 'round';
         g.lineCap = 'round';
@@ -514,6 +535,11 @@
         g.fillStyle = '#9A9D96'; g.fill(); inkStroke(3);
         [-8, 8].forEach((dx) => { g.beginPath(); g.arc(x + dx, y, 2, 0, Math.PI * 2); g.fillStyle = INK; g.fill(); });
       });
+
+      // blueprint grid over the whole sheet
+      g.save();
+      drawBlueprintGrid(c.getContext('2d'), W, H, 32);
+      g.restore();
 
       // soft vignette so the menu card reads clearly
       const vg = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.max(W, H) * 0.75);

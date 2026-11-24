@@ -225,7 +225,7 @@ window.MM = window.MM || {};
   // Final art for a key: the raw drawing passed through the ink treatment.
   function getSvg(key) {
     const full = resolveKey(key);
-    if (INK_CACHE[full] === undefined) INK_CACHE[full] = inkify(rawSvg(full), full);
+    if (INK_CACHE[full] === undefined) INK_CACHE[full] = ART_INK ? inkify(rawSvg(full), full) : blueprintify(rawSvg(full), full);
     return INK_CACHE[full];
   }
 
@@ -235,6 +235,7 @@ window.MM = window.MM || {};
   //   - pen hatching laid over cel-shade shapes (the dark tone of each part)
   //   - a colour grade that pulls every fill toward dusty, earthy print colours
   const INK_CACHE = {};
+  const ART_INK = window.MM_ART_STYLE === 'ink'; // Settings > Art Style
   const SHADE_TONES = new Set();
   const GRADE_TO = [184, 152, 112];
   const GRADE_T = 0.16;
@@ -344,6 +345,105 @@ window.MM = window.MM || {};
     return new XMLSerializer().serializeToString(root);
   }
 
+
+  // ---- "Mine Blueprint" treatment ----------------------------------------------
+  // Every sprite becomes an engineer's technical drawing on blue grid paper:
+  //   - outlines turn into thin pencil lines in a role colour (friendly white,
+  //     enemies red pencil, pets light cyan, loot gold)
+  //   - fills become faint washes of that colour (darker parts stay navy)
+  //   - shadow shapes become line hatching
+  //   - a light chalk jitter so the lines look hand-drafted
+  const BP_PAPER = '#2A5C9A';
+  const BP_NAVY = '#0E2A52';
+  const BP_LOOT = new Set(['icon:scrap', 'icon:fruit', 'icon:crate', 'icon:voucher', 'icon:piggy', 'prop:ore_vein', 'prop:loot_pinata',
+    'hat:gold_hardhat', 'hat:star_crown', 'hat:gold_visor', 'hat:neon_crown', 'hat:halo', 'enemy:loot_goblin']);
+  function bpLineColour(key) {
+    if (BP_LOOT.has(key)) return '#FFE28A';
+    const grp = key.split(':')[0];
+    if (grp === 'enemy') return '#FF9A8A';
+    if (grp === 'pet') return '#A8ECFF';
+    return '#EAF2FF';
+  }
+  function hexLum(col) {
+    let h = (col || '').trim();
+    if (h[0] !== '#') return null;
+    h = h.slice(1);
+    if (h.length === 3) h = h.split('').map((c) => c + c).join('');
+    if (h.length !== 6) return null;
+    const r = parseInt(h.slice(0, 2), 16);
+    const g = parseInt(h.slice(2, 4), 16);
+    const b = parseInt(h.slice(4, 6), 16);
+    return (0.3 * r + 0.59 * g + 0.11 * b) / 255;
+  }
+  function blueprintify(svg, key) {
+    if (!svg || typeof DOMParser === 'undefined') return svg;
+    const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
+    const root = doc.documentElement;
+    if (!root || root.nodeName !== 'svg' || doc.getElementsByTagName('parsererror').length) return svg;
+    const vb = (root.getAttribute('viewBox') || '0 0 96 96').split(/[\s,]+/).map(Number);
+    const k = (vb[2] || 96) / 96;
+    const id = 'bp' + (hashKey(key) % 99991);
+    const LINE = bpLineColour(key);
+
+    Array.from(root.querySelectorAll('path,rect,circle,ellipse,polygon,line,polyline')).forEach((el) => {
+      if (el.closest('clipPath,defs,mask,pattern')) return;
+      const fill = el.getAttribute('fill');
+      const stroke = el.getAttribute('stroke');
+      const sw = parseFloat(el.getAttribute('stroke-width') || '0');
+      const isShade = (el.getAttribute('class') || '').split(' ').includes('sh')
+        || (fill && SHADE_TONES.has(fill.toUpperCase()) && (!stroke || stroke === 'none') && !el.hasAttribute('data-f'));
+
+      // strokes: ink outlines -> pencil lines; thick coloured strokes (limbs) ->
+      // paper-blue tubes inside their pencil outline; thin coloured details -> faint lines
+      if (stroke && stroke !== 'none' && stroke[0] === '#') {
+        const lum = hexLum(stroke);
+        if (lum !== null && lum < 0.22) {
+          el.setAttribute('stroke', LINE);
+          el.setAttribute('stroke-width', Math.max(0.9 * k, sw * 0.58).toFixed(2));
+        } else if (sw >= 2.6) {
+          el.setAttribute('stroke', BP_PAPER);
+        } else {
+          el.setAttribute('stroke', LINE);
+          el.setAttribute('stroke-opacity', '0.7');
+          el.setAttribute('stroke-width', Math.max(0.8 * k, sw * 0.7).toFixed(2));
+        }
+      }
+
+      // fills
+      if (fill && fill !== 'none' && fill[0] === '#') {
+        if (isShade) {
+          el.setAttribute('fill', `url(#${id}-h)`);
+          return;
+        }
+        const lum = hexLum(fill);
+        if (lum === null) return;
+        if (lum < 0.22) {
+          el.setAttribute('fill', BP_NAVY); // pupils, mouths, visors: dark ink areas
+        } else {
+          el.setAttribute('fill', LINE);
+          const base = parseFloat(el.getAttribute('fill-opacity') || '1');
+          el.setAttribute('fill-opacity', (base * (0.07 + 0.16 * lum)).toFixed(3));
+        }
+      }
+    });
+
+    const sp = (3.2 * k).toFixed(2);
+    const defsSrc = `<svg xmlns="${SVGNS}"><defs>`
+      + `<pattern id="${id}-h" width="${sp}" height="${sp}" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">`
+      + `<line x1="0" y1="0" x2="0" y2="${sp}" stroke="${LINE}" stroke-width="${(0.7 * k).toFixed(2)}" stroke-opacity="0.75"/></pattern>`
+      + `<filter id="${id}-c" filterUnits="userSpaceOnUse" x="${vb[0] - 6 * k}" y="${vb[1] - 6 * k}" width="${vb[2] + 12 * k}" height="${vb[3] + 12 * k}">`
+      + `<feTurbulence type="fractalNoise" baseFrequency="${(0.9 / k).toFixed(4)}" numOctaves="1" seed="${hashKey(key) % 97}" result="n"/>`
+      + `<feDisplacementMap in="SourceGraphic" in2="n" scale="${(1.1 * k).toFixed(2)}" xChannelSelector="R" yChannelSelector="G"/></filter>`
+      + '</defs></svg>';
+    const defs = doc.importNode(new DOMParser().parseFromString(defsSrc, 'image/svg+xml').documentElement.firstChild, true);
+    const g = doc.createElementNS(SVGNS, 'g');
+    g.setAttribute('filter', `url(#${id}-c)`);
+    while (root.firstChild) g.appendChild(root.firstChild);
+    root.appendChild(defs);
+    root.appendChild(g);
+    return new XMLSerializer().serializeToString(root);
+  }
+
   SHADE_KEYS.forEach((k) => SHADE_TONES.add(C[k].toUpperCase()));
 
   // ---- Offscreen baker -------------------------------------------------------
@@ -378,19 +478,29 @@ window.MM = window.MM || {};
         const og = oc.getContext('2d');
         og.drawImage(img, pad, pad, drawSz, drawSz);
         og.globalCompositeOperation = 'source-in';
-        og.fillStyle = C.ink;
+        og.fillStyle = ART_INK ? C.ink : '#0B2547';
         og.fillRect(0, 0, BAKE_SIZE, BAKE_SIZE);
         // brushy rim: stamped at 14 angles with an uneven radius (stable per
         // sprite), so the outer contour swells and thins like a loaded brush
         let hs = 7;
         for (let i = 0; i < key.length; i++) hs = (hs * 31 + key.charCodeAt(i)) | 0;
-        const rimBase = 4.6;
-        const N = 14;
-        for (let a = 0; a < N; a++) {
-          const ang = (Math.PI * 2 * a) / N;
-          const wob = 0.72 + 0.5 * (0.5 + 0.5 * Math.sin(a * 1.9 + (hs % 1000) * 0.01));
-          const rim = rimBase * wob;
-          g.drawImage(oc, Math.cos(ang) * rim, Math.sin(ang) * rim);
+        if (ART_INK) {
+          // ink: brushy rim stamped at 14 angles with an uneven radius
+          const N = 14;
+          for (let a = 0; a < N; a++) {
+            const ang = (Math.PI * 2 * a) / N;
+            const rim = 4.6 * (0.72 + 0.5 * (0.5 + 0.5 * Math.sin(a * 1.9 + (hs % 1000) * 0.01)));
+            g.drawImage(oc, Math.cos(ang) * rim, Math.sin(ang) * rim);
+          }
+        } else {
+          // blueprint: a soft navy halo so pencil lines lift off the grid
+          g.globalAlpha = 0.55;
+          const N = 12;
+          for (let a = 0; a < N; a++) {
+            const ang = (Math.PI * 2 * a) / N;
+            g.drawImage(oc, Math.cos(ang) * 3, Math.sin(ang) * 3);
+          }
+          g.globalAlpha = 1;
         }
         g.drawImage(img, pad, pad, drawSz, drawSz);
       } else {

@@ -609,3 +609,48 @@ kbd { border-width: 2.5px; border-bottom-width: 2.5px; box-shadow: 2px 2px 0 var
   z-index: 6;
 }
 .hud-boss-bar:not(.hidden) ~ .wave-banner { translate: 0 72px; }
+
+/* ============================================================================
+   MINE BLUEPRINT LAYER: the whole UI as an engineer's technical drawing.
+   Deep blueprint-blue panels on a grid, white pencil borders, gold for the
+   main action, red only for danger. Overrides the earlier palette variables.
+   ============================================================================ */
+:root.art-blueprint {
+  --ink-line: #0B2547;
+  --bg-deep: #123665;
+  --panel: #1A4680;
+  --panel-hi: #1F4E8C;
+  --card: #22558F;
+  --card-hi: #2A62A3;
+  --sunken: #0F2F5C;
+  --cream: #EAF2FF;
+  --tan: #B9CCE8;
+  --yellow: #FFD66B;
+  --yellow-hi: #FFE28A;
+  --yellow-lo: #E0A936;
+  --brown-btn: #2C5E9C;
+  --brown-btn-hi: #3770B3;
+  --good: #8FE3A8;
+  --bad: #FF8A7A;
+  --cool: #A8ECFF;
+  --violet: #C9B6FF;
+  --border: rgba(234, 242, 255, 0.35);
+  --bp-grid: linear-gradient(rgba(234, 242, 255, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(234, 242, 255, 0.07) 1px, transparent 1px);
+  --paper: var(--bp-grid);
+  --hatch: repeating-linear-gradient(-45deg, rgba(234, 242, 255, 0.14) 0 1px, transparent 1px 6px);
+  --frame-depth: 0 0 0 1px rgba(234, 242, 255, 0.25), 5px 5px 0 rgba(6, 22, 46, 0.55);
+  --card-depth: 3px 3px 0 rgba(6, 22, 46, 0.45);
+  --press: 3px 3px 0 rgba(6, 22, 46, 0.7);
+}
+html.art-blueprint, html.art-blueprint body { background-color: var(--bg-deep); background-image: var(--bp-grid); background-size: 24px 24px; }
+/* panels, cards and frames: pencil-white borders, faint grid inside */
+html.art-blueprint :is(.dossier-panel, .hazard-bar, .dossier-block, .shop-card, .sidebar-section, .shop-roadmap-wrap, .shop-hero-bar,
+.owned-items-section, .char-card, .lab-career-strip, .guide-card, .codex-body, .daily-body, .item-inspect-bar,
+.dossier-more, .shop-shell, .modal-card, .title-card, .hud-vitals, .hud-center, .hud-boss-bar) {
+  border-color: rgba(234, 242, 255, 0.6) !important;
+  background-image: var(--bp-grid);
+  background-size: 16px 16px;
+}
+html.art-blueprint :is(.btn-primary, .btn-buy) { color: #0B2547 !important; }
+html.art-blueprint :is(.logo-multi, .logo-mine, .logo-dash) { -webkit-text-stroke: 0; text-shadow: 3px 3px 0 #0B2547; }
+html.art-blueprint .logo-mine { color: var(--yellow); }

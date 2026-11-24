@@ -46,12 +46,21 @@ window.MM = window.MM || {};
     }
     const lum = 0.3 * r + 0.59 * g + 0.11 * b;
     let out;
-    if (lum < 40) out = [r, g, b]; // inks & deep shadows stay put
+    if (window.MM_ART_STYLE === 'ink') {
+      if (lum < 40) out = [r, g, b]; // inks & deep shadows stay put
+      else {
+        // desaturate 20%, then pull 14% toward warm paper-brown
+        out = [r, g, b].map((v, i) => {
+          const d = v + (lum - v) * 0.2;
+          return Math.round(d + (TONE_TO[i] - d) * 0.14);
+        });
+      }
+    } else if (lum < 40) out = [11, 37, 71]; // blueprint: ink outlines become deep navy
     else {
-      // desaturate 20%, then pull 14% toward warm paper-brown
-      out = [r, g, b].map((v, i) => {
-        const d = v + (lum - v) * 0.2;
-        return Math.round(d + (TONE_TO[i] - d) * 0.14);
+      // blueprint: colours brightened a touch so effects pop on blue paper
+      out = [r, g, b].map((v) => {
+        const d = v + (lum - v) * 0.15;
+        return Math.round(d + (255 - d) * 0.22);
       });
     }
     const res = a === 1 ? `rgb(${out[0]},${out[1]},${out[2]})` : `rgba(${out[0]},${out[1]},${out[2]},${a})`;
@@ -72,6 +81,69 @@ window.MM = window.MM || {};
     });
     return ctx;
   }
+  // Blueprint paper canvas (floor & title cave bakes): every fill becomes a
+  // shade of blueprint blue by brightness, dark ink strokes become white lines.
+  const bpMemo = new Map();
+  function bpColour(col, isStroke) {
+    if (typeof col !== 'string') return col;
+    const key = (isStroke ? 's' : 'f') + col;
+    const hit = bpMemo.get(key);
+    if (hit) return hit;
+    let r; let g; let b; let a = 1;
+    const c = col.trim();
+    if (c[0] === '#' && (c.length === 7 || c.length === 4)) {
+      const h = c.length === 4 ? c.slice(1).split('').map((x) => x + x).join('') : c.slice(1);
+      r = parseInt(h.slice(0, 2), 16); g = parseInt(h.slice(2, 4), 16); b = parseInt(h.slice(4, 6), 16);
+    } else {
+      const m = /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*(?:,\s*([\d.]+)\s*)?\)$/i.exec(c);
+      if (!m) { bpMemo.set(key, col); return col; }
+      r = +m[1]; g = +m[2]; b = +m[3]; a = m[4] === undefined ? 1 : +m[4];
+    }
+    const lum = (0.3 * r + 0.59 * g + 0.11 * b) / 255;
+    let out;
+    if (isStroke) {
+      out = lum < 0.3 ? [234, 242, 255] : [r, g, b].map((v) => Math.round(v + (255 - v) * 0.55));
+    } else if (lum > 0.85) {
+      out = [r, g, b]; // near-white fills (labels, paper flecks) stay light
+    } else {
+      const lo = [20, 58, 108];
+      const hi = [48, 104, 172];
+      out = lo.map((v, i) => Math.round(v + (hi[i] - v) * Math.min(1, lum * 1.25)));
+    }
+    const res = a === 1 ? `rgb(${out[0]},${out[1]},${out[2]})` : `rgba(${out[0]},${out[1]},${out[2]},${a})`;
+    if (bpMemo.size < 4000) bpMemo.set(key, res);
+    return res;
+  }
+  function bpCanvas(ctx) {
+    if (window.MM_ART_STYLE === 'ink') return ctx; // ink style draws the floor as-is
+    const proto = Object.getPrototypeOf(ctx);
+    [['fillStyle', false], ['strokeStyle', true]].forEach(([prop, isStroke]) => {
+      const desc = Object.getOwnPropertyDescriptor(proto, prop);
+      if (!desc) return;
+      Object.defineProperty(ctx, prop, {
+        configurable: true,
+        get() { return desc.get.call(this); },
+        set(v) { desc.set.call(this, bpColour(v, isStroke)); }
+      });
+    });
+    return ctx;
+  }
+  // Blueprint grid: minor lines every `minor` px, major lines every 5th.
+  function drawBlueprintGrid(raw, w, h, minor = 40) {
+    if (window.MM_ART_STYLE === 'ink') return;
+    raw.save();
+    raw.lineWidth = 1;
+    for (let x = 0, i = 0; x <= w; x += minor, i++) {
+      raw.strokeStyle = i % 5 ? 'rgba(234,242,255,0.07)' : 'rgba(234,242,255,0.16)';
+      raw.beginPath(); raw.moveTo(x + 0.5, 0); raw.lineTo(x + 0.5, h); raw.stroke();
+    }
+    for (let y = 0, i = 0; y <= h; y += minor, i++) {
+      raw.strokeStyle = i % 5 ? 'rgba(234,242,255,0.07)' : 'rgba(234,242,255,0.16)';
+      raw.beginPath(); raw.moveTo(0, y + 0.5); raw.lineTo(w, y + 0.5); raw.stroke();
+    }
+    raw.restore();
+  }
+
   // A hand-drawn circle: radius wobbles a little along the way (stable per seed).
   function wobblyCircle(ctx, x, y, r, seed, amp = 0.05) {
     const n = Math.max(14, Math.min(40, Math.round(r / 4)));
@@ -87,7 +159,7 @@ window.MM = window.MM || {};
     ctx.closePath();
   }
 
-  window.MM.EngineUtil = { ARENA_W, ARENA_H, clamp, dist2, rand, pick, inkTone, inkCanvas, wobblyCircle };
+  window.MM.EngineUtil = { ARENA_W, ARENA_H, clamp, dist2, rand, pick, inkTone, inkCanvas, wobblyCircle, bpCanvas, drawBlueprintGrid };
 
   class GameEngine {
     constructor(canvas, callbacks) {

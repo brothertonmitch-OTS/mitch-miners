@@ -6,6 +6,15 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <title>Mitch's Miners — Alien Engineer Auto-Roguelike</title>
+  <script>
+    // Art style (Blueprint or Ink), chosen in Settings and saved on this device.
+    (function () {
+      var s = 'blueprint';
+      try { s = localStorage.getItem('mm_art_style') === 'ink' ? 'ink' : 'blueprint'; } catch (e) {}
+      window.MM_ART_STYLE = s;
+      document.documentElement.classList.add('art-' + s);
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -505,6 +514,7 @@
           <div class="section-label" style="margin-bottom:8px;">DISPLAY</div>
           <div class="mixer-tracks">
             <button id="btn-pref-shake" class="track-pill active">Screen Shake: ON</button>
+            <button id="btn-pref-art" class="track-pill active">Art Style: Blueprint</button>
             <button id="btn-pref-dmgnums" class="track-pill active">Damage Numbers: ON</button>
             <button id="btn-pref-touch" class="track-pill">📱 Touch UI: AUTO</button>
           </div>

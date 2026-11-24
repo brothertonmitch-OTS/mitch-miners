@@ -186,6 +186,17 @@ window.MM = window.MM || {};
       if ($('btn-daily-launch')) {
         $('btn-daily-launch').onclick = () => this.launchDailyChallenge();
       }
+      if ($('btn-pref-art')) {
+        const artLbl = () => `Art Style: ${window.MM_ART_STYLE === 'ink' ? 'Ink & Grit' : 'Blueprint'}`;
+        $('btn-pref-art').textContent = artLbl();
+        $('btn-pref-art').title = 'Switch between the Blueprint and Ink & Grit art styles (reloads the page; progress is kept)';
+        $('btn-pref-art').onclick = () => {
+          window.MM.Audio.SFX.click();
+          const next = window.MM_ART_STYLE === 'ink' ? 'blueprint' : 'ink';
+          try { localStorage.setItem('mm_art_style', next); } catch (e) { /* storage blocked: stays as is */ }
+          location.reload();
+        };
+      }
       if ($('btn-pref-shake')) {
         $('btn-pref-shake').onclick = () => {
           window.MM.Audio.SFX.click();
